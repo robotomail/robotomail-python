@@ -93,7 +93,7 @@ class _Base:
         return quote(value, safe="")
 
     def _prepare(self, params=None, stream=False):
-        headers = {"Accept": "text/event-stream" if stream else "application/json", "User-Agent": "robotomail-python/0.1.0"}
+        headers = {"Accept": "text/event-stream" if stream else "application/json", "User-Agent": "robotomail-python/0.2.0"}
         if self._api_key:
             headers["Authorization"] = "Bearer " + self._api_key
         query = {}

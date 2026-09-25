@@ -11,7 +11,7 @@ Give your application a real email address. The official Robotomail SDK covers a
 The initial release is installable from the tagged GitHub repository:
 
 ```sh
-pip install "robotomail @ git+https://github.com/robotomail/robotomail-python.git@v0.1.0"
+pip install "robotomail @ git+https://github.com/robotomail/robotomail-python.git@v0.2.0"
 ```
 
 The `robotomail` package is prepared for PyPI; registry publication is a separate release step. The GitHub installation above works before that step.
