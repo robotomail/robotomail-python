@@ -1,6 +1,6 @@
 """Generated API types. Request/response keys use the wire names."""
 from __future__ import annotations
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 from typing_extensions import TypedDict, Required, NotRequired
 class ErrorBody(TypedDict):
     error: Required[str]
@@ -25,16 +25,16 @@ class PaymentRequired(TypedDict):
 class TrialPaymentRequired(TypedDict):
     error: Required[str]
     payment_required: Required[bool]
-    code: Required[str]
+    code: Required[Literal["TRIAL_RECIPIENT_LOCKED", "TRIAL_SEND_LIMIT", "TRIAL_EXPIRED"]]
     upgrade: Required[UpgradeHint]
     resetsAt: NotRequired[str]
 
 class InboundLimitExceeded(TypedDict):
     error: Required[str]
-    code: Required[str]
+    code: Required[Literal["INBOUND_LIMIT_EXCEEDED", "INBOUND_TRIAL_LIMIT_EXCEEDED"]]
     resource: Required[InboundLimitExceededResource]
     upgrade: Required[UpgradeHint]
-    recovery: Required[str]
+    recovery: Required[Literal["reset", "upgrade"]]
     resetAt: NotRequired[str]
 
 class PlanLimit(TypedDict):
@@ -146,7 +146,7 @@ class Mailbox(TypedDict):
     dailySendLimit: Required[int]
     monthlySendCount: Required[int]
     monthlySendLimit: Required[int]
-    status: Required[str]
+    status: Required[Literal["ACTIVE", "PAUSED", "SUSPENDED"]]
     pausedByBilling: Required[bool]
     stalwartProvisioned: Required[bool]
     suspendedAt: Required[Optional[str]]
@@ -169,11 +169,12 @@ class CreateMailboxRequest(TypedDict):
 
 class UpdateMailboxRequest(TypedDict):
     displayName: NotRequired[str]
-    status: NotRequired[str]
+    status: NotRequired[Literal["ACTIVE", "PAUSED"]]
 
 class SendMessageRequest(TypedDict):
     to: Required[List[str]]
     cc: NotRequired[List[str]]
+    bcc: NotRequired[List[str]]
     subject: Required[str]
     bodyText: Required[str]
     bodyHtml: NotRequired[str]
@@ -184,25 +185,26 @@ class SendMessageRequest(TypedDict):
 class Message(TypedDict):
     id: Required[str]
     mailboxId: Required[str]
-    direction: Required[str]
+    direction: Required[Literal["INBOUND", "OUTBOUND"]]
     messageId: Required[str]
     inReplyTo: Required[Optional[str]]
     threadId: Required[Optional[str]]
     fromAddress: Required[str]
     toAddresses: Required[List[str]]
     ccAddresses: Required[List[str]]
+    bccAddresses: Required[List[str]]
     subject: Required[str]
     bodyText: Required[str]
     bodyHtml: Required[Optional[str]]
     headers: Required[Dict[str, Any]]
-    status: Required[str]
+    status: Required[Literal["QUEUED", "SENT", "DELIVERED", "BOUNCED", "COMPLAINED", "FAILED", "RECEIVED"]]
     externalMessageId: Required[Optional[str]]
     hasAttachments: Required[bool]
     attachmentsDropped: Required[bool]
     attachmentsDroppedReason: Required[Optional[str]]
     eventDispatchedAt: Required[Optional[str]]
     overLimit: Required[bool]
-    overLimitReason: Required[Optional[str]]
+    overLimitReason: Required[Optional[Literal["MONTHLY", "TRIAL"]]]
     pendingSseEventData: Required[Any]
     createdAt: Required[str]
     attachments: NotRequired[List[Attachment]]
@@ -215,7 +217,7 @@ class InboundUsage(TypedDict):
     limit: Required[int]
     percentage: Required[int]
     reset_date: Required[str]
-    status: Required[str]
+    status: Required[Literal["healthy", "approaching", "near", "limit_reached"]]
 
 class ListMetadata(TypedDict):
     overLimitCount: Required[int]
@@ -284,7 +286,7 @@ class Domain(TypedDict):
     id: Required[str]
     userId: Required[str]
     domain: Required[str]
-    status: Required[str]
+    status: Required[Literal["PENDING_VERIFICATION", "DNS_VERIFIED", "VERIFIED", "FAILED"]]
     mxVerified: Required[bool]
     spfVerified: Required[bool]
     dkimVerified: Required[bool]
@@ -308,7 +310,7 @@ class TxtDnsRecord(TypedDict):
     value: Required[str]
 
 class DkimDnsRecord(TypedDict):
-    type: Required[str]
+    type: Required[Literal["CNAME", "TXT"]]
     host: Required[str]
     value: Required[str]
 
@@ -342,9 +344,9 @@ class Webhook(TypedDict):
     userId: Required[str]
     mailboxId: Required[Optional[str]]
     url: Required[str]
-    events: Required[List[str]]
+    events: Required[List[Literal["message.received", "message.sent", "message.delivered", "message.bounced", "message.complaint"]]]
     headers: Required[Optional[Dict[str, str]]]
-    status: Required[str]
+    status: Required[Literal["ACTIVE", "PAUSED", "FAILED"]]
     failureCount: Required[int]
     lastTriggeredAt: Required[Optional[str]]
     createdAt: Required[str]
@@ -355,9 +357,9 @@ class WebhookCreated(TypedDict):
     userId: Required[str]
     mailboxId: Required[Optional[str]]
     url: Required[str]
-    events: Required[List[str]]
+    events: Required[List[Literal["message.received", "message.sent", "message.delivered", "message.bounced", "message.complaint"]]]
     headers: Required[Optional[Dict[str, str]]]
-    status: Required[str]
+    status: Required[Literal["ACTIVE", "PAUSED", "FAILED"]]
     failureCount: Required[int]
     lastTriggeredAt: Required[Optional[str]]
     createdAt: Required[str]
@@ -368,13 +370,13 @@ WebhookHeaders = Dict[str, str]
 class CreateWebhookRequest(TypedDict):
     url: Required[str]
     mailboxId: NotRequired[str]
-    events: Required[List[str]]
+    events: Required[List[Literal["message.received", "message.sent", "message.delivered", "message.bounced", "message.complaint"]]]
     headers: NotRequired[WebhookHeaders]
 
 class UpdateWebhookRequest(TypedDict):
     url: NotRequired[str]
-    events: NotRequired[List[str]]
-    status: NotRequired[str]
+    events: NotRequired[List[Literal["message.received", "message.sent", "message.delivered", "message.bounced", "message.complaint"]]]
+    status: NotRequired[Literal["ACTIVE", "PAUSED"]]
     headers: NotRequired[Optional[WebhookHeaders]]
 
 class WebhookListResponse(TypedDict):
@@ -390,7 +392,7 @@ class WebhookDelivery(TypedDict):
     id: Required[str]
     event: Required[str]
     responseStatus: Required[Optional[int]]
-    status: Required[str]
+    status: Required[Literal["PENDING", "DELIVERED", "FAILED"]]
     attempts: Required[int]
     nextRetryAt: Required[Optional[str]]
     createdAt: Required[str]
@@ -401,12 +403,12 @@ class WebhookDeliveryListResponse(TypedDict):
 class SuppressionEntry(TypedDict):
     id: Required[str]
     email: Required[str]
-    reason: Required[str]
+    reason: Required[Literal["BOUNCE", "COMPLAINT", "MANUAL"]]
     createdAt: Required[str]
 
 class CreateSuppressionRequest(TypedDict):
     email: Required[str]
-    reason: NotRequired[str]
+    reason: NotRequired[Literal["BOUNCE", "COMPLAINT", "MANUAL"]]
 
 class SuppressionListResponse(TypedDict):
     suppressions: Required[List[SuppressionEntry]]
@@ -415,8 +417,8 @@ class SuppressionResponse(TypedDict):
     suppression: Required[SuppressionEntry]
 
 class UpgradeRequest(TypedDict):
-    plan: NotRequired[str]
-    period: NotRequired[str]
+    plan: NotRequired[Literal["developer", "growth", "scale"]]
+    period: NotRequired[Literal["monthly", "annual"]]
 
 class UpgradeCheckoutResponse(TypedDict):
     checkout_url: Required[str]
@@ -424,7 +426,7 @@ class UpgradeCheckoutResponse(TypedDict):
     message: Required[str]
 
 class SupportRequest(TypedDict):
-    category: Required[str]
+    category: Required[Literal["technical", "billing", "account", "other"]]
     subject: Required[str]
     message: Required[str]
 
@@ -442,10 +444,10 @@ class DeleteAccountRequest(TypedDict):
     confirm: Required[str]
 
 class SetPostVerifyTargetResponse(TypedDict):
-    target: Required[str]
+    target: Required[Literal["/dashboard?verified=true", "/onboarding"]]
 
 class ListMessagesParams(TypedDict):
-    direction: NotRequired[str]
+    direction: NotRequired[Literal["INBOUND", "OUTBOUND"]]
     threadId: NotRequired[str]
     since: NotRequired[str]
     limit: NotRequired[int]
@@ -467,7 +469,7 @@ class UpgradeHintApiEndpoint(TypedDict):
     path: Required[str]
 
 class InboundLimitExceededResource(TypedDict):
-    type: Required[str]
+    type: Required[Literal["message", "attachment"]]
     id: Required[str]
 
 class SignupResponseUser(TypedDict):
@@ -487,7 +489,7 @@ class SignupResponseMailbox(TypedDict):
     id: Required[str]
     address: Required[str]
     fullAddress: Required[str]
-    status: Required[str]
+    status: Required[Literal["ACTIVE", "PAUSED", "SUSPENDED"]]
 
 class SignupResponseNextSteps(TypedDict):
     verify_email: Required[str]
